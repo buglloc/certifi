@@ -6,6 +6,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"time"
 )
 
 func fatalf(msg string, a ...interface{}) {
@@ -22,6 +23,8 @@ func main() {
 	if err != nil {
 		fatalf("unable to create output file: %v", err)
 	}
+	_, _ = outF.WriteString(fmt.Sprintf("# Generated at: %s\n\n", time.Now().UTC().Format(time.RFC3339)))
+
 	defer func() {
 		if err := outF.Close(); err != nil {
 			fatalf("unable to close output file: %v", err)

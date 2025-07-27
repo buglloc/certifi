@@ -5,6 +5,7 @@ import (
 	_ "embed"
 	"encoding/pem"
 	"fmt"
+	"io"
 	"sync"
 )
 
@@ -20,12 +21,16 @@ var (
 
 func certs() []*x509.Certificate {
 	parseCertsOnce.Do(func() {
-		parsedCerts, _ = parseCerts()
+		parsedCerts, _ = ParseCertificates(certsBytes)
 	})
 	return parsedCerts
 }
 
-func parseCerts() ([]*x509.Certificate, error) {
+func ParseCertificates(in []byte) ([]*x509.Certificate, error) {
+	if len(in) == 0 {
+		return nil, io.ErrUnexpectedEOF
+	}
+
 	var out []*x509.Certificate
 	rest := certsBytes
 	for {

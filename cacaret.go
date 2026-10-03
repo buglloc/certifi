@@ -4,6 +4,7 @@ import (
 	"crypto/x509"
 	_ "embed"
 	"encoding/pem"
+	"errors"
 	"fmt"
 	"io"
 	"sync"
@@ -17,12 +18,22 @@ var certsBytes []byte
 var (
 	parseCertsOnce sync.Once
 	parsedCerts    []*x509.Certificate
+	parseCertsErr  error
 )
 
 func certs() []*x509.Certificate {
 	parseCertsOnce.Do(func() {
-		parsedCerts, _ = ParseCertificates(certsBytes)
+		parsedCerts, parseCertsErr = ParseCertificates(certsBytes)
+		if parseCertsErr == nil && len(parsedCerts) == 0 {
+			parseCertsErr = errors.New("bundle contains no certificates")
+		}
 	})
+
+	// Panic outside Once so callers that recover cannot subsequently get an empty pool.
+	if parseCertsErr != nil {
+		panic(fmt.Errorf("certifi: invalid builtin certificate bundle: %w", parseCertsErr))
+	}
+
 	return parsedCerts
 }
 

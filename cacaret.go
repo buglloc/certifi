@@ -37,9 +37,12 @@ func certs() []*x509.Certificate {
 	return parsedCerts
 }
 
-// ParseCertificates parses certificate PEM blocks from in.
-// Blocks with other types or PEM headers are skipped.
-// Empty input returns io.ErrUnexpectedEOF; invalid certificate DER returns an error.
+// ParseCertificates parses CERTIFICATE PEM blocks from in, preserving their order.
+// It ignores non-PEM text and skips blocks with other types or PEM headers.
+//
+// Empty input returns nil and io.ErrUnexpectedEOF. Invalid certificate DER
+// returns nil and a wrapped parsing error, discarding any certificates already parsed.
+// Nonempty input with no certificate blocks returns nil, nil.
 func ParseCertificates(in []byte) ([]*x509.Certificate, error) {
 	if len(in) == 0 {
 		return nil, io.ErrUnexpectedEOF

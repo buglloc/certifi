@@ -26,13 +26,16 @@ func certs() []*x509.Certificate {
 	return parsedCerts
 }
 
+// ParseCertificates parses certificate PEM blocks from in.
+// Blocks with other types or PEM headers are skipped.
+// Empty input returns io.ErrUnexpectedEOF; invalid certificate DER returns an error.
 func ParseCertificates(in []byte) ([]*x509.Certificate, error) {
 	if len(in) == 0 {
 		return nil, io.ErrUnexpectedEOF
 	}
 
 	var out []*x509.Certificate
-	rest := certsBytes
+	rest := in
 	for {
 		if len(rest) == 0 {
 			break

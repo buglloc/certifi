@@ -1,6 +1,7 @@
 package certifi_test
 
 import (
+	"encoding/pem"
 	"strconv"
 	"testing"
 
@@ -17,8 +18,9 @@ func TestParseBuiltinCerts(t *testing.T) {
 
 func TestParseCertificates(t *testing.T) {
 	type testCase struct {
-		in string
-		ok bool
+		in    string
+		ok    bool
+		count int
 	}
 	cases := []testCase{
 		{
@@ -71,7 +73,15 @@ AbEVtQwdpf5pLGkkeB6zpxxxYu7KyJesF12KwvhHhm4qxFYxldBniYUr+WymXUad
 DKqC5JlR3XC321Y9YeRq4VzW9v493kHMB65jUr9TU/Qr6cf9tveCX4XSQRjbgbME
 HMUfpIBvFSDJ3gyICh3WZlXi/EjJKSZp4A==
 -----END CERTIFICATE-----`,
-			ok: true,
+			ok:    true,
+			count: 1,
+		},
+		{
+			in: string(pem.EncodeToMemory(&pem.Block{
+				Type:  "CERTIFICATE",
+				Bytes: []byte("invalid DER"),
+			})),
+			ok: false,
 		},
 	}
 
@@ -84,7 +94,11 @@ HMUfpIBvFSDJ3gyICh3WZlXi/EjJKSZp4A==
 			}
 
 			require.NoError(t, err)
-			require.NotEmpty(t, certs)
+			require.Len(t, certs, tc.count)
+			if tc.count == 1 {
+				block, _ := pem.Decode([]byte(tc.in))
+				require.Equal(t, block.Bytes, certs[0].Raw)
+			}
 		})
 	}
 }

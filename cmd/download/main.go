@@ -73,6 +73,7 @@ func download(out, url string) error {
 	}
 
 	mode := os.FileMode(0644)
+
 	info, err := os.Stat(out)
 	if err == nil {
 		mode = info.Mode().Perm()

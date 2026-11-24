@@ -22,6 +22,7 @@ func TestParseCertificates(t *testing.T) {
 		ok    bool
 		count int
 	}
+
 	cases := []testCase{
 		{
 			in: "",
@@ -95,6 +96,7 @@ HMUfpIBvFSDJ3gyICh3WZlXi/EjJKSZp4A==
 
 			require.NoError(t, err)
 			require.Len(t, certs, tc.count)
+
 			if tc.count == 1 {
 				block, _ := pem.Decode([]byte(tc.in))
 				require.Equal(t, block.Bytes, certs[0].Raw)

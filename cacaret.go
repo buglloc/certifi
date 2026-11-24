@@ -49,6 +49,7 @@ func ParseCertificates(in []byte) ([]*x509.Certificate, error) {
 	}
 
 	var out []*x509.Certificate
+
 	rest := in
 	for {
 		if len(rest) == 0 {
@@ -56,6 +57,7 @@ func ParseCertificates(in []byte) ([]*x509.Certificate, error) {
 		}
 
 		var block *pem.Block
+
 		block, rest = pem.Decode(rest)
 		if block == nil {
 			break
